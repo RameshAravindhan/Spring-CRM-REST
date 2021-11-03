@@ -23,19 +23,7 @@ public class CustomerController {
 
     @GetMapping("/customers/{customerID}")
     public Customer getCustomer(@PathVariable int customerID) {
-
-        boolean b = true;
-
-        List<Customer> cList = customerService.getCustomers();
-        for (Customer c : cList) {
-            if (c.getId() == customerID) {
-                b = false;
-                break;
-            }
-        }
-        if (b) {
-            throw new InvalidCustomerException("Invalid Customer ID, valid Customers are" + cList);
-        }
+        checkForValidCustomerID(customerID);
         return customerService.getCustomer(customerID);
     }
 
@@ -48,14 +36,26 @@ public class CustomerController {
         return customerService.getCustomers();
     }
 
-    @GetMapping("/customers/delete/{customerID}")
+    @DeleteMapping("/customers/{customerID}")
     public List<Customer> deleteCustomer(@PathVariable int customerID) {
-
-        if (customerID > customerService.getCustomers().size() || customerID < 1) {
-            throw new InvalidCustomerException("Invalid Customer ID");
-        }
+        checkForValidCustomerID(customerID);
         customerService.deleteCustomer(customerID);
         return customerService.getCustomers();
+    }
+
+    private void checkForValidCustomerID(@PathVariable int customerID) {
+        boolean ispresent = false;
+
+        List<Customer> customerList = customerService.getCustomers();
+        for (Customer theCustomer : customerList) {
+            if (theCustomer.getId() == customerID) {
+                ispresent = true;
+                break;
+            }
+        }
+        if (!ispresent) {
+            throw new InvalidCustomerException("Invalid Customer ID, valid Customers are" + customerList);
+        }
     }
 
 
